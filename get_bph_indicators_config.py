@@ -1,6 +1,3 @@
-#!/usr/bin/env python3.8
-
-
 import os.path
 from pathlib import Path
 from datetime import datetime
@@ -10,7 +7,7 @@ import configparser
 
 class GetBPHIndicatorsConfig:
     def __init__(self):
-        self.script_path = os.path.dirname(os.path.realpath(__file__)) + "/"
+        self.script_path = os.path.dirname(os.path.realpath(__file__))
         self.config = None
         self.logger = None
         self.handler_console = None
@@ -30,11 +27,9 @@ class GetBPHIndicatorsConfig:
         self.bph_tracking_tag = ""
 
     def initialise(self) -> bool:
-        initialise_status: bool = False
-
         try:
             self.config = configparser.ConfigParser()
-            self.config.read(self.script_path + "config/get_bph_indicators.ini")
+            self.config.read(os.path.join(self.script_path, "config", "get_bph_indicators.ini"))
 
             self.files_config_directory = self.config.get("files", "config_directory")
             self.files_log_directory = self.config.get("files", "log_directory")
@@ -53,7 +48,8 @@ class GetBPHIndicatorsConfig:
             self.logger.addHandler(self.handler_console)
 
             # Create a logging file handler and set the level to INFO.
-            self.handler_file = logging.FileHandler(self.script_path + self.files_log_directory + self.files_log_prefix + datetime.now().strftime("%Y-%m-%d_%H.%M.%S") + ".txt", "w", encoding=None, delay="true")
+            fn = os.path.join(self.script_path, self.files_log_directory, f"{self.files_log_prefix}{datetime.now().strftime('%Y-%m-%d_%H.%M.%S')}.log")
+            self.handler_file = logging.FileHandler(fn, "w", encoding=None, delay=True)
             self.handler_file.setLevel(logging.INFO)
             self.formatter_file = logging.Formatter("%(asctime)-15s - %(name)s - %(levelname)-8s - %(message)s")
             self.handler_file.setFormatter(self.formatter_file)
@@ -69,10 +65,8 @@ class GetBPHIndicatorsConfig:
             Path(self.files_log_directory).mkdir(parents=True, exist_ok=True)
             Path(self.files_output_directory).mkdir(parents=True, exist_ok=True)
 
-            initialise_status = True
-
-        except Exception as e:
-            initialise_status = False
+        except Exception:
             print("Unable to initialise configuration.")
-
-        return initialise_status
+            return False
+        else:
+            return True

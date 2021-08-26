@@ -15,7 +15,7 @@ When run, the script will acquire the latest available data for all BPH provider
 - Your Titan credentials (username and API key).
 
 ## Configuration
-The /config/get_bph_indicators.ini contains all of the following configuration settings:
+The /config/get_bph_indicators.ini.sample contains all of the following configuration settings:
 
 | Setting                                                 | Description                                                                                                |
 | -------                                                 | -----------                                                                                                |
@@ -34,7 +34,7 @@ The /config/get_bph_indicators.ini contains all of the following configuration s
 | titan_user_agent                                        | The user agent string to be used for all requests to the Titan API.                                        |
 | bph_tracking_tag                                        | The name of the Titan tag that is used to identify Bulletproof Hosting Tracking reports.                   |
 
-Most of the config points described above are pre-populated in the sample provided.  The main items to add are the Titan username and Titan API key. The values for the other config points may of course be changed to match your own requirements.
+Most of the config points described above are pre-populated in the sample provided. The main items to add are the Titan username and Titan API key. The values for the other config points may of course be changed to match your own requirements.
 
 ## Installation
 - Copy the entire contents (files and directories) of the directory containing the script to an appropriate directory on the host that will run the script.
@@ -54,7 +54,7 @@ Most of the config points described above are pre-populated in the sample provid
   ```
   $ pip install -r requirements.txt
   ```
-- Edit the /config/get_bph_indicators.ini file in line with your requirements (eg Titan credentials).
+- Copy /config/get_bph_indicators.ini.sample file into /config/get_bph_indicators.ini and edit it in line with your requirements (eg Titan credentials).
 
 ## Invocation
 The integration script may be run manually using:
