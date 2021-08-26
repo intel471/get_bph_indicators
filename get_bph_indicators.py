@@ -26,8 +26,8 @@ def process_report_attachment(titan: TitanUtilities, report_attachment: Dict) ->
                 with open(os.path.join(config.files_output_directory, filename), "w") as raw_writer:
                     raw_writer.writelines(attachment)
 
-                ip_addresses: List = []
-                domains: List = []
+                ip_addresses = set([])
+                domains = set([])
 
                 rows = csv.reader(attachment.split("\n"))
 
@@ -36,19 +36,20 @@ def process_report_attachment(titan: TitanUtilities, report_attachment: Dict) ->
                     if is_header:
                         is_header = False
                     else:
-                        row_text = row[0]
-                        fields: List = row_text.split(";")
-                        if fields[0] not in ip_addresses:
-                            ip_addresses.append(fields[0])
-                        if fields[2] not in domains:
-                            domains.append(fields[2])
+                        try:
+                            ipaddr, _, domain, _ = row[0].split(";")
+                        except Exception as e:
+                            config.logger.info("Can't process row %s. Skipping.", str(row[0]))
+                        else:
+                            ip_addresses.add(ipaddr)
+                            domains.add(domain)
 
                 bph_indicators = {
                     "indicators": {
                         "inticators_ipv4_count": len(ip_addresses),
                         "indicators_domain_count": len(domains),
-                        "indicators_ipv4": ip_addresses,
-                        "indicators_domain": domains
+                        "indicators_ipv4": sorted(list(ip_addresses)),
+                        "indicators_domain": sorted(list(domains))
                     }
                 }
 
