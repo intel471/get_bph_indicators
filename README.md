@@ -25,6 +25,7 @@ The /config/get_bph_indicators.ini.sample contains all of the following configur
 | log_prefix                                              | Prefix to be used for log filenames.                                                                       |
 | output_directory                                        | The sub directory to which output files are written.                                                       |
 | output_file_json                                        | The name of the consolidated JSON formatted file containing the BPH data.                                  |
+| store_original_attachment                               | Boolean indicating if the original attachment used to extract the indicators from should be stored or not. |
 |                                                         |                                                                                                            |
 | intel471                                                |                                                                                                            |
 | titan_username                                          | Titan username.                                                                                            |

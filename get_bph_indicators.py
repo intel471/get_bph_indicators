@@ -23,8 +23,9 @@ def process_report_attachment(titan: TitanUtilities, report_attachment: Dict) ->
                 attachment = titan.get_bph_tracking_report_attachment(url)
 
                 # Save the raw file.
-                with open(os.path.join(config.files_output_directory, filename), "w") as raw_writer:
-                    raw_writer.writelines(attachment)
+                if config.files_store_original_attachment:
+                    with open(os.path.join(config.files_output_directory, filename), "w") as raw_writer:
+                        raw_writer.writelines(attachment)
 
                 ip_addresses = set([])
                 domains = set([])

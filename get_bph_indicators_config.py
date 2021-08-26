@@ -19,6 +19,7 @@ class GetBPHIndicatorsConfig:
         self.files_log_prefix = ""
         self.files_output_directory = ""
         self.files_output_file_json = ""
+        self.files_store_original_attachment = True
         self.titan_username = ""
         self.titan_api_key = ""
         self.titan_api_base_url = ""
@@ -36,6 +37,7 @@ class GetBPHIndicatorsConfig:
             self.files_log_prefix = self.config.get("files", "log_prefix")
             self.files_output_directory = self.config.get("files", "output_directory")
             self.files_output_file_json = self.config.get("files", "output_file_json")
+            self.files_store_original_attachment = self.config.get("files", "store_original_attachment").lower() == 'true'
 
             self.logger = logging.getLogger("get_bph_indicators")
             self.logger.setLevel(logging.INFO)

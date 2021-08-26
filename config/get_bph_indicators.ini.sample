@@ -4,6 +4,7 @@ log_directory = logs/
 log_prefix = get_bph_indicators_log_
 output_directory = output/
 output_file_json = bph_provider_indicators.json
+store_original_attachment = true
 
 [intel471]
 titan_username = <YOUR TITAN USERNAME>
