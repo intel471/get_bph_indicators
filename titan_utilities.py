@@ -10,6 +10,10 @@ class TitanUtilities:
     def __init__(self, config):
         self.config = config
         requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+        self.session = requests.Session()
+        self.session.auth = (self.config.titan_username, self.config.titan_api_key)
+        if self.config.titan_user_agent:
+            self.session.headers = {"User-Agent": self.config.titan_user_agent}
 
     def get_bph_tracking_reports(self) -> List:
         self.config.logger.info("Attempting to acquire BPH tracking reports.")
@@ -49,13 +53,7 @@ class TitanUtilities:
             return result.text.strip()
 
     def _fetch_reports(self, url) -> Response:
-        if self.config.titan_user_agent:
-            headers = {"User-Agent": self.config.titan_user_agent}
-        else:
-            headers = {}
-
         self.config.logger.info(f"Sending request: {url}")
-
-        response = requests.get(url, headers=headers, auth=(self.config.titan_username, self.config.titan_api_key))
+        response = self.session.get(url)
         response.raise_for_status()
         return response
