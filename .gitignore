@@ -67,3 +67,6 @@ target/
 .idea/
 
 .DS_Store
+logs/*
+output/*
+config/get_bph_indicators.ini

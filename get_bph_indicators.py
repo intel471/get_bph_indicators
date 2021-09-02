@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.8
-
-
+import os
 import sys
 from datetime import datetime
 import json
@@ -18,43 +17,40 @@ def process_report_attachment(titan: TitanUtilities, report_attachment: Dict) ->
     try:
         config.logger.info("Processing BPH tracking report attachment.")
 
-        if report_attachment.get("url"):
-            url: str = report_attachment["url"]
+        if url := report_attachment.get("url"):
 
-            if report_attachment.get("fileName"):
-                filename: str = report_attachment["fileName"]
+            if filename := report_attachment.get("fileName"):
                 attachment = titan.get_bph_tracking_report_attachment(url)
 
                 # Save the raw file.
-                with open(config.files_output_directory + filename, "w") as raw_writer:
-                    raw_writer.writelines(attachment)
+                if config.files_store_original_attachment:
+                    with open(os.path.join(config.files_output_directory, filename), "w") as raw_writer:
+                        raw_writer.writelines(attachment)
 
-                ip_addresses: List = []
-                domains: List = []
+                ip_addresses = set([])
+                domains = set([])
 
                 rows = csv.reader(attachment.split("\n"))
 
                 is_header: bool = True
-                count: int = 0
                 for row in rows:
                     if is_header:
                         is_header = False
                     else:
-                        row_text = row[0]
-                        fields: List = row_text.split(";")
-                        if fields[0] not in ip_addresses:
-                            ip_addresses.append(fields[0])
-                        if fields[2] not in domains:
-                            domains.append(fields[2])
-
-                        count += 1
+                        try:
+                            ipaddr, _, domain, _ = row[0].split(";")
+                        except Exception as e:
+                            config.logger.info("Can't process row %s. Skipping.", str(row[0]))
+                        else:
+                            ip_addresses.add(ipaddr)
+                            domains.add(domain)
 
                 bph_indicators = {
                     "indicators": {
                         "inticators_ipv4_count": len(ip_addresses),
                         "indicators_domain_count": len(domains),
-                        "indicators_ipv4": ip_addresses,
-                        "indicators_domain": domains
+                        "indicators_ipv4": sorted(list(ip_addresses)),
+                        "indicators_domain": sorted(list(domains))
                     }
                 }
 
@@ -75,11 +71,8 @@ def process_bph_tracking_report(titan: TitanUtilities, bph_provider: str, uid: s
 
         report: Dict = titan.get_bph_tracking_report(uid)
         if report:
-            last_updated: int = 0
-            if report.get("lastUpdated"):
-                last_updated = report["lastUpdated"]
-            if report.get("reportAttachments"):
-                report_attachments = report["reportAttachments"]
+            last_updated: int = report.get("lastUpdated", 0)
+            if report_attachments := report.get("reportAttachments"):
                 for report_attachment in report_attachments:
                     bph_indicators: Dict = process_report_attachment(titan, report_attachment)
                     bph_provider_indicators = {
@@ -108,17 +101,13 @@ def process_bph_tracking_reports(titan: TitanUtilities, reports: List) -> Dict:
         bph_providers: List = []
 
         for report in reports:
-            if report.get("actorSubjectOfReport"):
-                handles: List = report["actorSubjectOfReport"]
+            if handles := report.get("actorSubjectOfReport"):
                 for handle in handles:
-                    if handle.get("handle"):
-                        bph_provider: str = handle["handle"]
+                    if bph_provider := handle.get("handle"):
                         if bph_provider not in bph_providers:
-                            if report.get("uid"):
-                                uid: str = report["uid"]
+                            if uid := report.get("uid"):
                                 report_bph_tracking_report_indicators: Dict = process_bph_tracking_report(titan, bph_provider, uid)
                                 bph_provider_indicators["bph_provider_indicators"].append(report_bph_tracking_report_indicators)
-
                                 bph_providers.append(bph_provider)
 
         config.logger.info("Processing BPH tracking reports complete.")
@@ -139,7 +128,7 @@ def acquire_bph_data(titan: TitanUtilities):
         bph_provider_indicators: Dict = process_bph_tracking_reports(titan, bph_tracking_reports)
 
         current_date: str = datetime.today().strftime('%Y-%m-%d')
-        with open(config.files_output_directory + current_date + "_" + config.files_output_file_json, "w") as output_json_writer:
+        with open(os.path.join(config.files_output_directory, f"{current_date}_{config.files_output_file_json}"), "w") as output_json_writer:
             output_json_writer.writelines(json.dumps(bph_provider_indicators, indent=4))
 
         config.logger.info("Processing BPH indicators complete.")
