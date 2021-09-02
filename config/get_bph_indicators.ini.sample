@@ -11,5 +11,5 @@ titan_username = <YOUR TITAN USERNAME>
 titan_api_key = <YOUR TITAN API KEY>
 titan_api_base_url = https://api.intel471.com/v1/
 titan_api_batch_size = 100
-titan_user_agent = get_bph_indicators/1.0.1
+titan_user_agent = get_bph_indicators/1.0.2
 bph_tracking_tag = Bulletproof Hosting Tracking
